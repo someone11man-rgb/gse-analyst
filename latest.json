@@ -1,0 +1,73 @@
+{
+  "updatedAt": "2026-07-01T08:00:00Z",
+  "date": "2026-06-30",
+  "source": "seed",
+  "signals": [
+    {
+      "ticker": "MTNGH",
+      "price": 6.45,
+      "change": -0.47,
+      "volume": 690773,
+      "signal": "hold",
+      "confidence": 60,
+      "reasoning": "MTN Ghana pulled back modestly on still-heavy volume, the session's second highest. One soft session on the index's largest weight is worth watching but isn't a trend by itself.",
+      "risk": "As the GSE-CI's biggest weight, a continued slide here would drag the whole index down with it.",
+      "sector": "Telecom"
+    },
+    {
+      "ticker": "TOTAL",
+      "price": 39.6,
+      "change": 10.0,
+      "volume": 12000,
+      "signal": "watch",
+      "confidence": 45,
+      "reasoning": "Sharp single-session 10% gain with no confirmed company-specific catalyst found in public sources yet.",
+      "risk": "Low-confidence read specifically because the catalyst is unconfirmed \u2014 wants follow-through volume before treating as a trend.",
+      "sector": "Energy"
+    },
+    {
+      "ticker": "KASA",
+      "price": 1.72,
+      "change": 0.0,
+      "volume": 862853,
+      "signal": "watch",
+      "confidence": 40,
+      "reasoning": "Heaviest volume on the exchange this week, still in post-IPO price discovery following its record raise.",
+      "risk": "Newly listed stocks can be volatile until a stable trading range establishes.",
+      "sector": "Consumer Goods"
+    },
+    {
+      "ticker": "CAL",
+      "price": 0.79,
+      "change": 0.0,
+      "volume": 506926,
+      "signal": "hold",
+      "confidence": 50,
+      "reasoning": "Among the most liquid names this week but without a clear directional catalyst.",
+      "risk": "Low share price means percentage moves can look dramatic on small pesewa changes.",
+      "sector": "Banking"
+    },
+    {
+      "ticker": "SOGEGH",
+      "price": 1.34,
+      "change": 0.15,
+      "volume": 8000,
+      "signal": "hold",
+      "confidence": 50,
+      "reasoning": "Small, steady gain in a quiet session with no standout news.",
+      "risk": "Low trading volume this week limits confidence in the read either direction.",
+      "sector": "Banking"
+    },
+    {
+      "ticker": "SIC",
+      "price": 0.58,
+      "change": -0.17,
+      "volume": 5000,
+      "signal": "hold",
+      "confidence": 50,
+      "reasoning": "Minor decline in a thin session, tracking broadly flat.",
+      "risk": "Thin volume means today's move may not repeat tomorrow.",
+      "sector": "Insurance"
+    }
+  ]
+}

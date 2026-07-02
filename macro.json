@@ -1,0 +1,12 @@
+{
+  "updated": "2026-07-01",
+  "policyRate": "14.0%",
+  "policyRateNote": "Held in May after five consecutive cuts. Next MPC meeting 22 Jul 2026.",
+  "inflation": "5.3%",
+  "inflationNote": "Up from 3.7% in May — third consecutive monthly rise, released 01 Jul 2026.",
+  "marketCap": "GHS 287.5B",
+  "marketCapNote": "Ghana Stock Exchange total market capitalization.",
+  "outlook": "Cut delayed",
+  "outlookNote": "Consensus still expects 100-200bps of cuts in 2026, but timing has pushed back on geopolitical inflation risk.",
+  "briefing": "The Bank of Ghana's next rate decision (22 Jul) is the dominant driver to watch. A held policy rate is generally supportive for bank net interest margins but keeps T-bills more competitive with equities. Update this file by hand once a month, or whenever a new inflation print or MPC decision lands — these figures move too slowly to script."
+}

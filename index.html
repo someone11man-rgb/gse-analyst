@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E1210">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json">
+<title>GSE Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0E1210; --panel: #171D1A; --panel-2: #1F2622; --hair: #2B332E;
+    --ink: #EDE9DF; --ink-muted: #9B9E96; --ink-faint: #6E726B;
+    --gold: #C9A227; --gold-dim: #7A6420;
+    --sage: #7FA98E; --sage-dim: #35473C;
+    --terracotta: #C1502E; --terracotta-dim: #4A2418;
+    --amber: #D9A441; --amber-dim: #4A3A16;
+    --serif: 'Fraunces', Georgia, serif; --sans: 'Inter', -apple-system, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:960px; margin:0 auto; padding:0 24px 80px;}
+  .masthead{padding:32px 24px 0; max-width:960px; margin:0 auto; border-bottom:1px solid var(--hair);}
+  .masthead-top{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; padding-bottom:20px;}
+  .wordmark{font-family:var(--serif); font-weight:600; font-size:28px; letter-spacing:0.3px; margin:0;}
+  .wordmark span{color:var(--gold);}
+  .tagline{font-size:12.5px; color:var(--ink-faint); margin:4px 0 0; letter-spacing:0.4px;}
+  .status{display:flex; flex-direction:column; align-items:flex-end; gap:3px; font-family:var(--mono); font-size:11.5px; color:var(--ink-muted); text-align:right;}
+  .status-row{display:flex; align-items:center; gap:8px;}
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--sage); flex-shrink:0;}
+  .index-row{display:flex; align-items:baseline; gap:20px; flex-wrap:wrap; padding:18px 0 22px;}
+  .index-big{font-family:var(--serif); font-size:44px; font-weight:500; line-height:1;}
+  .index-meta{display:flex; flex-direction:column; gap:4px; font-family:var(--mono); font-size:12.5px; color:var(--ink-muted);}
+  .up{color:var(--sage);} .down{color:var(--terracotta);} .flat{color:var(--amber);}
+  .tape-outer{background:var(--panel); border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); overflow:hidden; white-space:nowrap; padding:9px 0;}
+  .tape-track{display:inline-block; animation:scroll 34s linear infinite;}
+  .tape-track span{font-family:var(--mono); font-size:12.5px; margin-right:36px; color:var(--ink-muted);}
+  .tape-track b{color:var(--ink); font-weight:500;}
+  @keyframes scroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+  section{padding:36px 0; border-bottom:1px solid var(--hair);}
+  section:last-of-type{border-bottom:none;}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); margin:0 0 10px;}
+  h2{font-family:var(--serif); font-weight:500; font-size:24px; margin:0 0 16px;}
+  p{line-height:1.65; color:var(--ink); font-size:15px; margin:0 0 12px;}
+  p.muted{color:var(--ink-muted); font-size:13.5px;}
+
+  /* Executive summary */
+  .exec-grid{display:grid; grid-template-columns:1.1fr 1fr; gap:14px; margin-top:18px;}
+  @media(max-width:760px){.exec-grid{grid-template-columns:1fr;}}
+  .exec-card{background:var(--panel); border:1px solid var(--hair); border-radius:12px; padding:20px;}
+  .health-score{display:flex; align-items:center; gap:20px;}
+  .health-ring{width:88px; height:88px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; position:relative;}
+  .health-ring svg{position:absolute; top:0; left:0; transform:rotate(-90deg);}
+  .health-ring .num{font-family:var(--serif); font-size:26px; position:relative; z-index:1;}
+  .health-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-faint); margin-bottom:6px;}
+  .health-desc{font-size:13.5px; color:var(--ink-muted); line-height:1.55;}
+  .sector-row{display:flex; align-items:center; gap:10px; margin-top:10px; font-size:13px;}
+  .sector-name{width:118px; flex-shrink:0; color:var(--ink-muted); font-family:var(--mono); font-size:11.5px;}
+  .sector-bar-track{flex:1; height:8px; background:var(--panel-2); border-radius:4px; overflow:hidden; display:flex;}
+  .sector-bar-buy{background:var(--sage); height:100%;}
+  .sector-bar-sell{background:var(--terracotta); height:100%;}
+  .sector-bar-hold{background:var(--amber-dim); height:100%;}
+  .sector-count{font-family:var(--mono); font-size:11px; color:var(--ink-faint); width:36px; text-align:right;}
+  .accuracy-big{font-family:var(--serif); font-size:36px; margin:4px 0;}
+  .alert-row{display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--hair);}
+  .alert-row:last-child{border-bottom:none;}
+  .alert-dot{width:7px; height:7px; border-radius:50%; margin-top:6px; flex-shrink:0;}
+  .alert-dot.high{background:var(--terracotta);}
+  .alert-dot.med{background:var(--amber);}
+  .alert-text{font-size:13.5px; color:var(--ink-muted); line-height:1.5;}
+  .alert-text b{color:var(--ink); font-weight:600;}
+
+  .macro-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-top:18px;}
+  .mcard{background:var(--panel); border:1px solid var(--hair); border-radius:10px; padding:16px;}
+  .mcard .label{font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-faint);}
+  .mcard .value{font-family:var(--serif); font-size:26px; margin:6px 0 4px;}
+  .mcard .note{font-size:12.5px; color:var(--ink-muted); line-height:1.5;}
+  .signals-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:20px;}
+  .scard{background:var(--panel); border:1px solid var(--hair); border-radius:10px; padding:18px; position:relative;}
+  .scard-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .ticker{font-family:var(--mono); font-size:13px; color:var(--ink-faint); letter-spacing:0.5px;}
+  .sector-tag{font-family:var(--mono); font-size:10px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.5px;}
+  .price-line{font-family:var(--mono); font-size:14px; margin-top:4px;}
+  .stamp{font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:1.5px; padding:5px 11px; border-radius:3px; transform:rotate(-4deg); white-space:nowrap; border:1.5px solid; flex-shrink:0; text-transform:uppercase;}
+  .stamp.buy{color:var(--sage); border-color:var(--sage); background:var(--sage-dim);}
+  .stamp.sell{color:var(--terracotta); border-color:var(--terracotta); background:var(--terracotta-dim);}
+  .stamp.hold, .stamp.watch{color:var(--amber); border-color:var(--amber); background:var(--amber-dim);}
+  .conf-row{margin:14px 0 4px; display:flex; align-items:center; gap:8px;}
+  .conf-label{font-family:var(--mono); font-size:11px; color:var(--ink-faint); min-width:64px;}
+  .conf-track{flex:1; height:4px; background:var(--panel-2); border-radius:2px; overflow:hidden;}
+  .conf-fill{height:100%; background:var(--gold);}
+  .conf-pct{font-family:var(--mono); font-size:11.5px; color:var(--ink-muted); min-width:32px; text-align:right;}
+  .reasoning{font-size:13.5px; color:var(--ink-muted); line-height:1.6; margin-top:10px;}
+  .risk{font-size:12.5px; color:var(--terracotta); margin-top:8px; line-height:1.5;}
+  .watch-btn{position:absolute; top:16px; right:16px; background:none; border:none; cursor:pointer; color:var(--ink-faint); font-size:16px; padding:2px; line-height:1;}
+  .watch-btn.active{color:var(--gold);}
+  .table-wrap{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table{min-width:520px; width:100%; border-collapse:collapse; margin-top:16px; font-size:13.5px;}
+  th{text-align:left; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.8px; color:var(--ink-faint); padding:8px 10px; border-bottom:1px solid var(--hair);}
+  td{padding:10px; border-bottom:1px solid var(--hair); vertical-align:top;}
+  td.tk{font-family:var(--mono); color:var(--ink-muted);}
+  .badge{font-family:var(--mono); font-size:10.5px; padding:2px 8px; border-radius:3px; display:inline-block; text-transform:uppercase;}
+  .badge.buy{color:var(--sage); background:var(--sage-dim);}
+  .badge.sell{color:var(--terracotta); background:var(--terracotta-dim);}
+  .badge.hold, .badge.watch{color:var(--amber); background:var(--amber-dim);}
+  .filter-row{display:flex; gap:8px; margin-top:16px; flex-wrap:wrap;}
+  .filter-btn{font-family:var(--mono); font-size:11.5px; padding:6px 12px; border-radius:16px; border:1px solid var(--hair); background:var(--panel); color:var(--ink-muted); cursor:pointer;}
+  .filter-btn.active{border-color:var(--gold-dim); color:var(--gold); background:var(--panel-2);}
+
+  .ask-box{background:var(--panel); border:1px solid var(--hair); border-radius:12px; padding:20px; margin-top:18px;}
+  .ask-form{display:flex; gap:8px; flex-wrap:wrap;}
+  .ask-input{flex:1; min-width:180px; background:var(--panel-2); border:1px solid var(--hair); border-radius:8px; padding:12px 14px; color:var(--ink); font-family:var(--sans); font-size:15px;}
+  .ask-input:focus{outline:none; border-color:var(--gold-dim);}
+  .ask-submit{background:var(--gold); color:#161B14; border:none; border-radius:8px; padding:12px 20px; font-family:var(--sans); font-weight:600; font-size:14px; cursor:pointer; flex-shrink:0;}
+  .ask-submit:active{opacity:0.85;}
+  .ask-chips{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+  .ask-chip{font-family:var(--mono); font-size:11.5px; padding:5px 11px; border-radius:14px; border:1px solid var(--hair); background:var(--panel-2); color:var(--ink-muted); cursor:pointer;}
+  .ask-chip:active{border-color:var(--gold-dim);}
+  .ask-result{margin-top:16px; padding-top:16px; border-top:1px solid var(--hair); display:none;}
+  .ask-result.show{display:block;}
+  .ask-result .a-stamp{display:inline-block; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:1.5px; padding:6px 14px; border-radius:4px; border:1.5px solid; text-transform:uppercase; margin-bottom:10px;}
+  .ask-result .a-stamp.buy{color:var(--sage); border-color:var(--sage); background:var(--sage-dim);}
+  .ask-result .a-stamp.sell{color:var(--terracotta); border-color:var(--terracotta); background:var(--terracotta-dim);}
+  .ask-result .a-stamp.hold, .ask-result .a-stamp.watch{color:var(--amber); border-color:var(--amber); background:var(--amber-dim);}
+  .ask-result p{margin:0 0 8px; font-size:14.5px;}
+  .ask-result .a-title{font-family:var(--serif); font-size:19px; margin:0 0 8px;}
+
+  .ask-list{list-style:none; padding:0; margin:16px 0 0; display:flex; flex-direction:column; gap:8px;}
+  .ask-list li{background:var(--panel); border:1px solid var(--hair); border-radius:8px; padding:12px 14px; font-size:13.5px; color:var(--ink-muted);}
+  .ask-list li::before{content:"→  "; color:var(--gold); font-family:var(--mono);}
+  footer{padding:28px 0 0;}
+  .disclaimer{background:var(--panel); border:1px solid var(--hair); border-left:3px solid var(--gold); border-radius:0 8px 8px 0; padding:16px 18px; font-size:12.5px; color:var(--ink-muted); line-height:1.6;}
+  .disclaimer b{color:var(--ink);}
+  .sources{margin-top:14px; font-size:11.5px; color:var(--ink-faint); line-height:1.7;}
+  .empty{color:var(--ink-faint); font-size:13.5px; padding:20px 0;}
+
+  @media(max-width:600px){
+    .index-big{font-size:30px;} .wordmark{font-size:21px;}
+    .masthead{padding:22px 16px 0;} .wrap{padding:0 16px 60px;}
+    .masthead-top{flex-direction:column;} .status{align-items:flex-start; text-align:left;}
+    h2{font-size:20px;} .mcard .value{font-size:22px;}
+    .ask-form{flex-direction:column;} .ask-submit{width:100%;}
+    .health-score{flex-direction:column; align-items:flex-start;}
+  }  .ask-result .a-badge{display:inline-block; font-family:var(--mono); font-size:10.5px; color:var(--gold); border:1px solid var(--gold-dim); background:var(--panel-2); padding:3px 9px; border-radius:12px; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;}
+  .ask-result .a-body{white-space:pre-wrap;}
+  .ask-loading{display:flex; align-items:center; gap:8px; color:var(--ink-faint); font-size:13.5px; font-family:var(--mono);}
+  .ask-loading .spin{width:12px; height:12px; border:2px solid var(--hair); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-top">
+    <div>
+      <p class="wordmark">GSE <span>Analyst</span></p>
+      <p class="tagline">Ghana Stock Exchange &middot; daily trading signals</p>
+    </div>
+    <div class="status">
+      <div class="status-row"><span class="dot" id="status-dot"></span><span id="status-text">Loading&hellip;</span></div>
+      <div id="source-text"></div>
+    </div>
+  </div>
+  <div class="index-row">
+    <div>
+      <div class="index-big" id="stock-count">&mdash;</div>
+      <div style="font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-top:4px;">stocks tracked</div>
+    </div>
+    <div class="index-meta" id="signal-counts"></div>
+  </div>
+</div>
+
+<div class="tape-outer"><div class="tape-track" id="tape">Loading market data&hellip;</div></div>
+
+<div class="wrap">
+
+  <section style="padding-bottom:0; border-bottom:none;">
+    <p class="eyebrow">Ask GSE Analyst</p>
+    <h2>Should I buy or sell today?</h2>
+    <div class="ask-box">
+      <form class="ask-form" id="ask-form">
+        <input class="ask-input" id="ask-input" type="text" placeholder="e.g. &quot;MTN Ghana&quot; or &quot;how's the market today&quot;" autocomplete="off">
+        <button class="ask-submit" type="submit">Ask</button>
+      </form>
+      <div class="ask-chips" id="ask-chips"></div>
+      <div class="ask-result" id="ask-result"></div>
+    </div>
+  </section>
+
+  <section id="executive">
+    <p class="eyebrow">Executive summary</p>
+    <h2>Market health &amp; portfolio exposure</h2>
+    <div class="exec-grid">
+      <div class="exec-card">
+        <div class="health-label">Market health score</div>
+        <div class="health-score">
+          <div class="health-ring" id="health-ring"></div>
+          <div class="health-desc" id="health-desc">Calculating&hellip;</div>
+        </div>
+      </div>
+      <div class="exec-card">
+        <div class="health-label">Model accuracy (self-graded)</div>
+        <div class="accuracy-big" id="accuracy-big">&mdash;</div>
+        <div class="health-desc" id="accuracy-desc">Every buy/sell call is checked the next day against the actual move. This builds a real track record over time.</div>
+      </div>
+      <div class="exec-card">
+        <div class="health-label">Sector exposure</div>
+        <div id="sector-bars"></div>
+      </div>
+      <div class="exec-card">
+        <div class="health-label">Alerts</div>
+        <div id="alerts-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Today's briefing</p>
+    <h2 id="macro-headline">Loading macro data&hellip;</h2>
+    <p id="macro-briefing"></p>
+    <div class="macro-grid" id="macro-grid"></div>
+  </section>
+
+  <section id="signals">
+    <p class="eyebrow">Trade signals</p>
+    <h2>Daily watchlist</h2>
+    <p class="muted">Confidence reflects how strongly the underlying data supports each read. This updates automatically once a day, shortly after the market closes.</p>
+    <div class="filter-row" id="filters"></div>
+    <div class="signals-grid" id="signal-cards"></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Full report</p>
+    <h2>All signals</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Ticker</th><th>Sector</th><th>Price</th><th>Change</th><th>Signal</th><th>Confidence</th></tr></thead>
+        <tbody id="report-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Ask the analyst</p>
+    <h2>Want deeper reasoning?</h2>
+    <p class="muted">Open a chat with Claude and ask about anything you see here &mdash; it can dig deeper than this static view can:</p>
+    <ul class="ask-list">
+      <li>Why did [ticker] get a [signal] signal today?</li>
+      <li>What's the realistic case for and against a BoG rate cut on 22 July?</li>
+      <li>Compare this week's rising stocks versus falling stocks on the GSE.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="disclaimer">
+      <b>Not financial advice.</b> Signals are generated from live GSE trading data using either a documented rule-based heuristic or Claude's analysis of that same data &mdash; never invented news or fabricated events. The accuracy score above is earned, not estimated: it's calculated daily by checking prior buy/sell calls against what actually happened. Ghanaian equities, especially thinly traded counters, carry real volatility and liquidity risk. This is not a substitute for a licensed financial advisor or your own due diligence.
+    </div>
+    <div class="sources" id="sources-text"></div>
+  </footer>
+
+</div>
+
+<script>
+/* ============ DATA LAYER ============ */
+class GSEDataStore {
+  async load() {
+    const [latest, macro, performance] = await Promise.all([
+      this._get("./data/latest.json"),
+      this._get("./data/macro.json"),
+      this._get("./data/performance.json").catch(() => [])
+    ]);
+    this.latest = latest;
+    this.macro = macro;
+    this.performance = performance || [];
+    this.signals = latest.signals || [];
+    return this;
+  }
+  async _get(url) {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`${url} returned ${res.status}`);
+    return res.json();
+  }
+  find(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return null;
+    return this.signals.find(s => s.ticker.toLowerCase() === q)
+      || this.signals.find(s => s.ticker.toLowerCase().includes(q) || q.includes(s.ticker.toLowerCase()));
+  }
+  counts() {
+    const c = { buy: 0, sell: 0, hold: 0, watch: 0 };
+    this.signals.forEach(s => c[s.signal] = (c[s.signal] || 0) + 1);
+    return c;
+  }
+  recentAccuracy() {
+    if (!this.performance.length) return null;
+    const recent = this.performance.slice(-10);
+    const correct = recent.reduce((sum, r) => sum + r.correct, 0);
+    const total = recent.reduce((sum, r) => sum + r.sampleSize, 0);
+    if (total === 0) return null;
+    return { pct: Math.round((correct / total) * 100), sample: total, days: recent.length };
+  }
+}
+
+/* ============ ANALYTICS LAYER ============ */
+class MarketAnalytics {
+  constructor(store) { this.store = store; }
+
+  healthScore() {
+    const c = this.store.counts();
+    const total = this.store.signals.length || 1;
+    const avgConfidence = this.store.signals.reduce((s, x) => s + x.confidence, 0) / total;
+    const buyLean = (c.buy - c.sell) / total; // -1..1
+    const score = Math.round(50 + buyLean * 30 + (avgConfidence - 50) * 0.4);
+    return Math.max(0, Math.min(100, score));
+  }
+
+  healthDescription(score) {
+    if (score >= 65) return "Bullish lean: more buy signals than sell, with reasonable confidence behind them.";
+    if (score <= 35) return "Bearish lean: sell and watch signals dominate today's read.";
+    return "Mixed / neutral: no strong directional consensus across tracked stocks today.";
+  }
+
+  sectorBreakdown() {
+    const bySector = {};
+    this.store.signals.forEach(s => {
+      const sec = s.sector || "Other";
+      bySector[sec] = bySector[sec] || { buy: 0, sell: 0, hold: 0, watch: 0, total: 0 };
+      bySector[sec][s.signal]++;
+      bySector[sec].total++;
+    });
+    return Object.entries(bySector).sort((a, b) => b[1].total - a[1].total);
+  }
+
+  alerts() {
+    const list = [];
+    this.store.signals.forEach(s => {
+      if (Math.abs(s.change) >= 5) {
+        list.push({ level: "high", text: `<b>${s.ticker}</b> moved ${s.change > 0 ? "+" : ""}${s.change}% today — outsized single-day move.` });
+      } else if (s.confidence >= 75) {
+        list.push({ level: "med", text: `<b>${s.ticker}</b> flagged ${s.signal} at ${s.confidence}% confidence — highest-conviction call today.` });
+      }
+    });
+    if (list.length === 0) list.push({ level: "med", text: "No outsized moves or high-conviction calls today — a quiet session." });
+    return list.slice(0, 5);
+  }
+}
+
+/* ============ PERSONAL STATE (watchlist) ============ */
+class Watchlist {
+  constructor() { this.key = "gse-analyst-watchlist"; this.items = []; }
+  async load() {
+    try { const r = await window.storage.get(this.key); this.items = r && r.value ? JSON.parse(r.value) : []; }
+    catch { this.items = []; }
+    return this;
+  }
+  has(ticker) { return this.items.includes(ticker); }
+  async toggle(ticker) {
+    this.items = this.has(ticker) ? this.items.filter(t => t !== ticker) : [...this.items, ticker];
+    try { await window.storage.set(this.key, JSON.stringify(this.items)); } catch {}
+  }
+}
+
+/* ============ Q&A ENGINE ============ */
+class AskEngine {
+  constructor(store) { this.store = store; }
+
+  async answer(query) {
+    if (!query || !query.trim()) return this._localAnswer(query);
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question: query })
+      });
+      if (!res.ok) throw new Error(`api/ask returned ${res.status}`);
+      const data = await res.json();
+      return {
+        mode: "remote",
+        title: "GSE Analyst",
+        body: data.answer,
+        badge: data.usedWebSearch ? "Live web search + tracked data" : "Tracked data"
+      };
+    } catch (err) {
+      // Falls back automatically on static-only deployments (e.g. plain
+      // GitHub Pages with no /api backend), or if the request fails.
+      console.warn("Smart Q&A unavailable, falling back to local matcher:", err.message);
+      return this._localAnswer(query);
+    }
+  }
+
+  _localAnswer(query) {
+    if (!this.store.signals.length) return { mode: "local", stamp: "hold", title: "Data still loading", body: "Give it a second and try again." };
+    const lower = (query || "").trim().toLowerCase();
+    const match = this.store.find(query || "");
+    if (!lower || (!match && (lower.includes("market") || lower.includes("today")))) return this._marketAnswer();
+    if (match) return { mode: "local", stamp: match.signal, title: `${match.ticker} — GHS ${match.price} (${match.change > 0 ? "+" : ""}${match.change}%)`, body: match.reasoning, risk: match.risk };
+    return { mode: "local", stamp: "hold", title: "Couldn't find that ticker locally", body: `This question needs the smart Q&A backend (not deployed here) to answer fully. Locally tracked tickers: ${this.store.signals.map(s => s.ticker).join(", ")}.` };
+  }
+
+  _marketAnswer() {
+    const c = this.store.counts();
+    const top = [...this.store.signals].sort((a, b) => b.confidence - a.confidence)[0];
+    const lean = c.buy > c.sell ? "buy" : c.sell > c.buy ? "sell" : "hold";
+    return {
+      mode: "local", stamp: lean, title: "Overall market lean today",
+      body: `Across ${this.store.signals.length} tracked stocks: ${c.buy} buy, ${c.sell} sell, ${c.hold} hold, ${c.watch} watch. The market leans mildly ${lean === "hold" ? "neutral" : lean} today.` + (top ? ` Highest-confidence single call: ${top.ticker} (${top.signal}, ${top.confidence}%).` : "")
+    };
+  }
+}
+
+/* ============ RENDERING LAYER ============ */
+class Dashboard {
+  constructor(store, analytics, watchlist, ask) {
+    this.store = store; this.analytics = analytics; this.watchlist = watchlist; this.ask = ask;
+    this.activeFilter = "all";
+  }
+
+  fmtPct(n) { return `${n > 0 ? "+" : ""}${n.toFixed(2)}%`; }
+  pctClass(n) { return n > 0 ? "up" : n < 0 ? "down" : "flat"; }
+
+  renderAll() {
+    this.renderStatus();
+    this.renderTape();
+    this.renderExecutive();
+    this.renderMacro();
+    this.renderAskChips();
+    this.renderFilters();
+    this.renderCards();
+    this.renderReport();
+  }
+
+  renderStatus() {
+    const { latest } = this.store;
+    document.getElementById("stock-count").textContent = this.store.signals.length;
+    document.getElementById("status-text").textContent = `Updated ${new Date(latest.updatedAt).toLocaleString()}`;
+    document.getElementById("source-text").textContent = latest.source === "claude" ? "Claude-generated analysis" : latest.source === "seed" ? "Seed data — first run pending" : "Rule-based heuristic";
+    document.getElementById("sources-text").textContent = "Live prices: GSE-API (dev.kwayisi.org/apis/gse), an independent free public data source. Macro figures updated manually from Bank of Ghana and Ghana Statistical Service releases.";
+    const c = this.store.counts();
+    document.getElementById("signal-counts").innerHTML = `<div class="up">${c.buy} buy signals</div><div class="down">${c.sell} sell signals</div><div class="flat">${c.hold} hold &middot; ${c.watch} watch</div>`;
+  }
+
+  renderTape() {
+    const items = this.store.signals.map(s => `<span><b>${s.ticker}</b> GHS ${s.price} <span class="${this.pctClass(s.change)}">${this.fmtPct(s.change)}</span></span>`).join("");
+    document.getElementById("tape").innerHTML = items + items;
+  }
+
+  renderExecutive() {
+    const score = this.analytics.healthScore();
+    const color = score >= 65 ? "var(--sage)" : score <= 35 ? "var(--terracotta)" : "var(--amber)";
+    const circumference = 2 * Math.PI * 38;
+    const offset = circumference * (1 - score / 100);
+    document.getElementById("health-ring").innerHTML = `
+      <svg width="88" height="88"><circle cx="44" cy="44" r="38" fill="none" stroke="var(--panel-2)" stroke-width="8"/>
+      <circle cx="44" cy="44" r="38" fill="none" stroke="${color}" stroke-width="8" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round"/></svg>
+      <div class="num">${score}</div>`;
+    document.getElementById("health-desc").textContent = this.analytics.healthDescription(score);
+
+    const acc = this.store.recentAccuracy();
+    document.getElementById("accuracy-big").textContent = acc ? `${acc.pct}%` : "Building history";
+    document.getElementById("accuracy-desc").textContent = acc
+      ? `Based on ${acc.sample} graded buy/sell calls over the last ${acc.days} trading day(s).`
+      : "No graded calls yet — the tracker needs at least one full day/night cycle of the daily workflow running to start scoring itself.";
+
+    const sectors = this.analytics.sectorBreakdown();
+    document.getElementById("sector-bars").innerHTML = sectors.map(([name, s]) => {
+      const buyPct = (s.buy / s.total) * 100, sellPct = (s.sell / s.total) * 100, holdPct = 100 - buyPct - sellPct;
+      return `<div class="sector-row">
+        <div class="sector-name">${name}</div>
+        <div class="sector-bar-track">
+          <div class="sector-bar-buy" style="width:${buyPct}%"></div>
+          <div class="sector-bar-sell" style="width:${sellPct}%"></div>
+          <div class="sector-bar-hold" style="width:${holdPct}%"></div>
+        </div>
+        <div class="sector-count">${s.total}</div>
+      </div>`;
+    }).join("") || `<div class="empty">No sector data yet.</div>`;
+
+    document.getElementById("alerts-list").innerHTML = this.analytics.alerts().map(a =>
+      `<div class="alert-row"><div class="alert-dot ${a.level}"></div><div class="alert-text">${a.text}</div></div>`
+    ).join("");
+  }
+
+  renderMacro() {
+    const m = this.store.macro;
+    document.getElementById("macro-headline").textContent = m.outlook === "Cut delayed" ? "Rate decision is the driver to watch" : "Macro snapshot";
+    document.getElementById("macro-briefing").textContent = m.briefing || "";
+    document.getElementById("macro-grid").innerHTML = `
+      <div class="mcard"><div class="label">BoG policy rate</div><div class="value">${m.policyRate}</div><div class="note">${m.policyRateNote}</div></div>
+      <div class="mcard"><div class="label">Inflation (YoY)</div><div class="value up">${m.inflation}</div><div class="note">${m.inflationNote}</div></div>
+      <div class="mcard"><div class="label">Market cap</div><div class="value">${m.marketCap}</div><div class="note">${m.marketCapNote}</div></div>
+      <div class="mcard"><div class="label">Rate outlook</div><div class="value" style="font-size:19px; color:var(--amber);">${m.outlook}</div><div class="note">${m.outlookNote}</div></div>`;
+  }
+
+  renderFilters() {
+    const c = { all: this.store.signals.length, ...this.store.counts() };
+    const labels = { all: "All", buy: "Buy", sell: "Sell", hold: "Hold", watch: "Watch" };
+    document.getElementById("filters").innerHTML = Object.keys(labels).map(k =>
+      `<button class="filter-btn ${this.activeFilter === k ? 'active' : ''}" data-f="${k}">${labels[k]} (${c[k]})</button>`
+    ).join("");
+    document.querySelectorAll(".filter-btn").forEach(btn => btn.addEventListener("click", () => { this.activeFilter = btn.dataset.f; this.renderFilters(); this.renderCards(); }));
+  }
+
+  renderCards() {
+    const filtered = this.activeFilter === "all" ? this.store.signals : this.store.signals.filter(s => s.signal === this.activeFilter);
+    const grid = document.getElementById("signal-cards");
+    if (!filtered.length) { grid.innerHTML = `<div class="empty">No stocks match this filter today.</div>`; return; }
+    grid.innerHTML = filtered.map(s => `
+      <div class="scard">
+        <button class="watch-btn ${this.watchlist.has(s.ticker) ? 'active' : ''}" data-tk="${s.ticker}" aria-label="Toggle watchlist for ${s.ticker}">${this.watchlist.has(s.ticker) ? '\u2605' : '\u2606'}</button>
+        <div class="scard-top">
+          <div>
+            <div class="ticker">${s.ticker}</div>
+            <div class="sector-tag">${s.sector || "Other"}</div>
+            <div class="price-line ${this.pctClass(s.change)}">GHS ${s.price} &middot; ${this.fmtPct(s.change)}</div>
+          </div>
+          <div class="stamp ${s.signal}">${s.signal}</div>
+        </div>
+        <div class="conf-row"><div class="conf-label">confidence</div><div class="conf-track"><div class="conf-fill" style="width:${s.confidence}%"></div></div><div class="conf-pct">${s.confidence}%</div></div>
+        <p class="reasoning">${s.reasoning}</p>
+        <p class="risk">${s.risk}</p>
+      </div>`).join("");
+    grid.querySelectorAll(".watch-btn").forEach(btn => btn.addEventListener("click", async () => { await this.watchlist.toggle(btn.dataset.tk); this.renderCards(); }));
+  }
+
+  renderReport() {
+    document.getElementById("report-body").innerHTML = this.store.signals.map(s => `
+      <tr><td class="tk">${s.ticker}</td><td>${s.sector || "Other"}</td><td>GHS ${s.price}</td>
+      <td class="${this.pctClass(s.change)}">${this.fmtPct(s.change)}</td>
+      <td><span class="badge ${s.signal}">${s.signal}</span></td><td>${s.confidence}%</td></tr>`).join("");
+  }
+
+  renderAskChips() {
+    const chips = ["Market today", ...this.store.signals.slice(0, 3).map(s => s.ticker), "How do I open a GSE trading account?"];
+    document.getElementById("ask-chips").innerHTML = chips.map(c => `<button type="button" class="ask-chip" data-q="${c}">${c}</button>`).join("");
+    document.querySelectorAll(".ask-chip").forEach(chip => chip.addEventListener("click", async () => {
+      document.getElementById("ask-input").value = chip.dataset.q;
+      this.renderAskLoading();
+      this.renderAskResult(await this.ask.answer(chip.dataset.q));
+    }));
+  }
+
+  renderAskResult(answer) {
+    const el = document.getElementById("ask-result");
+    el.className = "ask-result show";
+    if (answer.mode === "remote") {
+      el.innerHTML = `<div class="a-badge">${answer.badge}</div><div class="a-title">${answer.title}</div><p class="a-body">${answer.body}</p>`;
+    } else {
+      el.innerHTML = `<div class="a-stamp ${answer.stamp}">${answer.stamp}</div><div class="a-title">${answer.title}</div><p>${answer.body}</p>${answer.risk ? `<p class="risk" style="margin-top:6px;">${answer.risk}</p>` : ""}`;
+    }
+  }
+
+  renderAskLoading() {
+    const el = document.getElementById("ask-result");
+    el.className = "ask-result show";
+    el.innerHTML = `<div class="ask-loading"><div class="spin"></div> Analyzing (checking tracked data and searching where needed)&hellip;</div>`;
+  }
+}
+
+/* ============ APP ORCHESTRATOR ============ */
+class App {
+  async init() {
+    try {
+      this.store = await new GSEDataStore().load();
+      this.analytics = new MarketAnalytics(this.store);
+      this.watchlist = await new Watchlist().load();
+      this.ask = new AskEngine(this.store);
+      this.dashboard = new Dashboard(this.store, this.analytics, this.watchlist, this.ask);
+      this.dashboard.renderAll();
+
+      document.getElementById("ask-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const q = document.getElementById("ask-input").value;
+        this.dashboard.renderAskLoading();
+        this.dashboard.renderAskResult(await this.ask.answer(q));
+      });
+    } catch (err) {
+      document.getElementById("status-text").textContent = "Couldn't load data";
+      document.getElementById("status-dot").style.background = "var(--terracotta)";
+      console.error(err);
+    }
+  }
+}
+
+new App().init();
+</script>
+
+</body>
+</html>
